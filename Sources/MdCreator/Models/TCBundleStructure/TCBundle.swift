@@ -10,6 +10,9 @@ import Foundation
 // MARK: - TCBundle
 
 struct TCBundle: Codable {
+    
+    // MARK: - Properties
+    
     let description: String
     let supportedLanguages: [String]
     let expanders: [TCBundleExpander]

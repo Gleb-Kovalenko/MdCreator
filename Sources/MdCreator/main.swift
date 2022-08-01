@@ -26,7 +26,6 @@ struct MdCreator: ParsableCommand {
     /// Then create .md files with the specified structure
     /// - Throws: Runtime errors (ex. "files not found", when there are no .tcbundle files in directory), decoder errors (ex. "can't decode file") and so on
     mutating func run() throws {
-        
         let bundleFiles = try filesFrom(directory: directory)
         if bundleFiles.count == 0 {
             throw RuntimeError.filesNotFound
@@ -48,9 +47,8 @@ struct MdCreator: ParsableCommand {
     /// - Throws: FileManager errors
     /// - Returns: Array of .tcbundle files names
     private func filesFrom(directory: String) throws -> [String] {
-        
         let filesInDirectory = try FileManager.default.contentsOfDirectory(atPath: directory)
-        return filesInDirectory.filter({ $0.hasSuffix(".tcbundle") })
+        return filesInDirectory.filter { $0.hasSuffix(".tcbundle") }
     }
 }
 

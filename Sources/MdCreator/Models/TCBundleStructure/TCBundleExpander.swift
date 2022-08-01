@@ -10,6 +10,9 @@ import Foundation
 // MARK: - TCBundleExpander
 
 struct TCBundleExpander: Codable {
+    
+    // MARK: - Properties
+    
     let outputTemplate: String
     let isEnabled: Bool
     let name: String
