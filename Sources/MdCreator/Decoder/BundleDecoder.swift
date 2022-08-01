@@ -10,8 +10,6 @@ import Foundation
 // MARK: - BundleDecoder
 
 protocol BundleDecoder {
-    
-    
     /// Decode data in codable struct
     /// - Parameter data: data from file to decode
     /// - Throws: decoding errors
