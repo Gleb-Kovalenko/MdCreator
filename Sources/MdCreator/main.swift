@@ -26,18 +26,31 @@ struct MdCreator: ParsableCommand {
     /// Then create .md files with the specified structure
     /// - Throws: Runtime errors (ex. "files not found", when there are no .tcbundle files in directory), decoder errors (ex. "can't decode file") and so on
     mutating func run() throws {
-        let bundleFiles = try filesFrom(directory: directory)
+        let bundleFiles = try bundleFiles(from: directory)
         if bundleFiles.count == 0 {
             throw RuntimeError.filesNotFound
         }
+        
+        var allRequiredParameters: [String: String] = [:]
+        var allParsedFiles: [[String: Any]] = []
+        
         let decoder = BundleDecoderImplementation()
+        let parser = CodableParserImplementation()
+        
         for file in bundleFiles {
-            if let jsonData = try String(contentsOfFile: "\(directory)/\(file)").data(using: .utf8){
+            if let jsonData = try String(contentsOfFile: "\(directory)/\(file)").data(using: .utf8) {
                 let decodedData: TCBundle = try decoder.decode(data: jsonData)
-                print(decodedData)
-                print("\n\n\n\n\n")
+                let parsedData = parser.allProperties(from: decodedData)
+                allParsedFiles.append(parsedData)
+                allRequiredParameters.merge(parser.requiredParameters(from: parsedData)) { (current, _) in current }
             }
         }
+        for parameterName in allRequiredParameters.keys {
+            print("Enter name for '\(parameterName)' parameter: ", terminator: "")
+            let enteredName = readLine()
+            allRequiredParameters[parameterName] = enteredName
+        }
+        print(allRequiredParameters)
     }
     
     // MARK: - Private
@@ -46,7 +59,7 @@ struct MdCreator: ParsableCommand {
     /// - Parameter directory: Directory where .tcbundle files are located
     /// - Throws: FileManager errors
     /// - Returns: Array of .tcbundle files names
-    private func filesFrom(directory: String) throws -> [String] {
+    private func bundleFiles(from directory: String) throws -> [String] {
         let filesInDirectory = try FileManager.default.contentsOfDirectory(atPath: directory)
         return filesInDirectory.filter { $0.hasSuffix(".tcbundle") }
     }
