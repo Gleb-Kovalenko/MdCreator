@@ -22,8 +22,8 @@ struct MdCreator: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Merge all expanders in one .md file")
     var merge = false
 
-    /// Main function, that takes all .tcbundle files from directory, if exists, and then decode, parse and convert data
-    /// Then create .md files with the specified structure
+    /// Main function, that takes all .tcbundle files from directory, if exists, and then decode, parse and convert data.
+    /// Then create .md files with the specified structure.
     /// - Throws: Runtime errors (ex. "files not found", when there are no .tcbundle files in directory), decoder errors (ex. "can't decode file") and so on
     mutating func run() throws {
         let bundleFiles = try bundleFiles(from: directory)

@@ -60,19 +60,21 @@ extension CodableParserImplementation: CodableParser {
     
     // MARK: - Private
     
-    /// Find the required parameters in the string
+    /// Find the required parameters in the string.
     ///
     /// The parameters are specified in the form ${parameterName} or ${parameterName.someFunction}
-    /// and the parameter name must consist only of letters
+    /// and the parameter name must consist only of letters.
     ///
     /// Example:
     ///
-    /// let someString = "some text ${firstParameter}, some text ${secondParameter} some text"
-    /// let parametersFromSomeString = requiredParameters(from: someString)
+    ///     let someString = "some text ${firstParameter}, some text ${secondParameter} some text"
+    ///     let parametersFromSomeString = requiredParameters(from: someString)
     ///
-    /// And 'parametersFromSomeString' has the form: ["firstParameter", "secondParameter"]
+    /// And 'parametersFromSomeString' has the form:
     ///
-    /// - Parameter string: String from which you need to get all the necessary parameters
+    ///     ["firstParameter", "secondParameter"]
+    ///
+    /// - Parameter string: String from which you need to get all the necessary parameters.
     /// - Returns: Array with the names of the required parameters.
     private func requiredParameters(from string: String) -> [String] {
         var elementWithParameter = string

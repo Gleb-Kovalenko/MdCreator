@@ -15,14 +15,15 @@ protocol CodableParser {
     ///
     /// Example:
     ///
-    /// struct SomeStrcut: Codable {
-    ///     var firstProterty: String = "hello"
-    ///     var secondProperty: Character = "!"
-    ///     var thirdProperty: Int = 3
-    /// }
-    /// let resultFunction: [String: Any] = allProperties(from: SomeStruct)
+    ///     struct SomeStrcut: Codable {
+    ///         var firstProterty: String = "hello"
+    ///         var secondProperty: Character = "!"
+    ///         var thirdProperty: Int = 3
+    ///     }
+    ///     let resultFunction: [String: Any] = allProperties(from: SomeStruct)
     ///
     /// And 'resultFunction' has the form:
+    ///
     ///     [
     ///       "firstProperty": "hello",
     ///       "secondProperty": "!",
@@ -40,7 +41,7 @@ protocol CodableParser {
     ///
     /// Example:
     ///
-    /// let someData: [String: Any] = [
+    ///     let someData: [String: Any] = [
     ///           "firstProperty": "hello",
     ///           "secondProperty": [
     ///             "hello": "world",
@@ -48,10 +49,11 @@ protocol CodableParser {
     ///             "someNumber": 5
     ///           ],
     ///           "thirdProperty": "some text ${secondParameter} some text"
-    ///     ]
-    /// let parametersFromSomeData = requiredParameters(from: someData)
+    ///          ]
+    ///     let parametersFromSomeData = requiredParameters(from: someData)
     ///
     /// And 'parametersFromSomeData' has the form:
+    ///
     ///     [
     ///       "firstParameter": "",
     ///       "secondParameter": ""
