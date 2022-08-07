@@ -33,14 +33,18 @@ struct MdCreator: ParsableCommand {
         
         var allRequiredParameters: [String: String] = [:]
         var allParsedFiles: [[String: Any]] = []
+        var transformatedFiles: [[String: Any]] = []
         
         let decoder = BundleDecoderImplementation()
         let parser = CodableParserImplementation()
+        let textTransformator = TextTransformatorImplementation()
         
         for file in bundleFiles {
             if let jsonData = try String(contentsOfFile: "\(directory)/\(file)").data(using: .utf8) {
+                guard let parsedData = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+                    throw RuntimeError.parseError(file: file)
+                }
                 let decodedData: TCBundle = try decoder.decode(data: jsonData)
-                let parsedData = parser.allProperties(from: decodedData)
                 allParsedFiles.append(parsedData)
                 allRequiredParameters.merge(parser.requiredParameters(from: parsedData)) { (current, _) in current }
             }
@@ -50,7 +54,10 @@ struct MdCreator: ParsableCommand {
             let enteredName = readLine()
             allRequiredParameters[parameterName] = enteredName
         }
-        print(allRequiredParameters)
+        for parsedFile in allParsedFiles {
+            transformatedFiles.append(try textTransformator.transformText(in: parsedFile, with: allRequiredParameters))
+        }
+        print(transformatedFiles)
     }
     
     // MARK: - Private

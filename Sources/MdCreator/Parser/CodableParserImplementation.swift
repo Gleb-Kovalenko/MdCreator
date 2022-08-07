@@ -16,37 +16,26 @@ final class CodableParserImplementation {
 // MARK: - CodableParser
 
 extension CodableParserImplementation: CodableParser {
-    
-    func allProperties(from fileData: Codable) -> [String: Any] {
-        var allPropertiesDict: [String: Any] = [:]
-        let mirror = Mirror(reflecting: fileData)
-        for (mirrorProperty, mirrorValue) in mirror.children {
-            guard let propertyMirror = mirrorProperty else {
-                continue
-            }
-            allPropertiesDict[propertyMirror] = mirrorValue
-        }
-        return allPropertiesDict
-    }
-    
+
     func requiredParameters(from data: [String: Any]) -> [String: String] {
         var requiredParametersDict: [String: String] = [:]
         let dataValues = data.map ( \.value )
         for dataValue in dataValues {
-            if let stringArrayElement = dataValue as? [String] {
-                let elementsWithParament = stringArrayElement.filter { $0.contains("${") }
-                if !elementsWithParament.isEmpty {
-                    for elementWithParameter in elementsWithParament {
-                        let parametersFromElement = requiredParameters(from: elementWithParameter)
-                        for parameter in parametersFromElement {
-                            requiredParametersDict[parameter] = ""
+            if let dictArray = dataValue as? [[String: Any]] {
+                for dictElement in dictArray {
+                    let elementParameters = requiredParameters(from: dictElement)
+                    requiredParametersDict.merge(elementParameters) { (current, _) in current }
+                }
+            } else if let anyArray = dataValue as? [Any] {
+                if !anyArray.isEmpty {
+                    for arrayElement in anyArray {
+                        if let stringElement = arrayElement as? String {
+                            let parametersFromElement = requiredParameters(from: stringElement)
+                            for parameter in parametersFromElement {
+                                requiredParametersDict[parameter] = ""
+                            }
                         }
                     }
-                }
-            } else if let codableArray = dataValue as? [Codable] {
-                for codableElement in codableArray {
-                    let elementParameters = requiredParameters(from: allProperties(from: codableElement))
-                    requiredParametersDict.merge(elementParameters) { (current, _) in current }
                 }
             } else if let stringElement = dataValue as? String {
                 let parametersFromElement = requiredParameters(from: stringElement)
