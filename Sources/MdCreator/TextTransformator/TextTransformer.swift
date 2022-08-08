@@ -1,5 +1,5 @@
 //
-//  TextTransformator.swift
+//  TextTransformer.swift
 //  
 //
 //  Created by Gleb Kovalenko on 04.08.2022.
@@ -7,12 +7,11 @@
 
 import Foundation
 
-// MARK: - TextTransformator
+// MARK: - TextTransformer
 
-protocol TextTransformator {
+protocol TextTransformer {
     
-    
-    /// Transforms file data (remove backslashes, insert parameter values and apply functions to them, etc.)
+    /// Modify file data (remove backslashes, insert parameter values and apply functions to them, etc.)
     ///
     /// Example:
     ///
@@ -29,9 +28,9 @@ protocol TextTransformator {
     ///         "someParameter": "someParameterValue",
     ///         "otherParameter": "otherParameterValue"
     ///     ]
-    ///     let transformedFileData = transformText(in: fileData, with: parameters)
+    ///     let modifiedFileData = transformText(in: fileData, with: parameters)
     ///
-    /// And 'transformedFileData' has the form:
+    /// And 'modifiedFileData' has the form:
     ///         
     ///     [
     ///         "firstProperty": "/// hello world ////n",
@@ -44,9 +43,9 @@ protocol TextTransformator {
     ///     ]
     ///
     /// - Parameters:
-    ///   - fileData: file data to transform
+    ///   - fileData: file data to modify
     ///   - parameters: parameters with already known values whose values will be inserted
     /// - Throws: Unknown function (the case when the parameter has an undefined function)
-    /// - Returns: transformated file data
-    func transformText(in fileData: [String : Any], with parameters: [String: String]) throws -> [String: Any]
+    /// - Returns: modified file data
+    func modifyText(in fileData: Parameters, with parameters: [String: String]) throws -> Parameters
 }

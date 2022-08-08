@@ -1,5 +1,5 @@
 //
-//  CodableParserImplementation.swift
+//  ParserImplementation.swift
 //  
 //
 //  Created by Gleb Kovalenko on 01.08.2022.
@@ -7,21 +7,21 @@
 
 import Foundation
 
-// MARK: - CodableParserImplementation
+// MARK: - ParserImplementation
 
-final class CodableParserImplementation {
+final class ParserImplementation {
     
 }
 
-// MARK: - CodableParser
+// MARK: - Parser
 
-extension CodableParserImplementation: CodableParser {
+extension ParserImplementation: Parser {
 
-    func requiredParameters(from data: [String: Any]) -> [String: String] {
+    func requiredParameters(from data: Parameters) -> [String: String] {
         var requiredParametersDict: [String: String] = [:]
         let dataValues = data.map ( \.value )
         for dataValue in dataValues {
-            if let dictArray = dataValue as? [[String: Any]] {
+            if let dictArray = dataValue as? [Parameters] {
                 for dictElement in dictArray {
                     let elementParameters = requiredParameters(from: dictElement)
                     requiredParametersDict.merge(elementParameters) { (current, _) in current }

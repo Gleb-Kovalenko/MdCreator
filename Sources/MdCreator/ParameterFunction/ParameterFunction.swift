@@ -25,7 +25,7 @@ enum ParameterFunction: String {
         case .uppercase:
             return string.uppercased()
         case .ucfirst:
-            return string.capitalized
+            return string.ucfirst()
         }
     }
 }

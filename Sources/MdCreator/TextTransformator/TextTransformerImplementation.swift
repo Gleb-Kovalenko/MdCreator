@@ -1,5 +1,5 @@
 //
-//  TextTransformatorImplementation.swift
+//  TextTransformerImplementation.swift
 //  
 //
 //  Created by Gleb Kovalenko on 04.08.2022.
@@ -7,47 +7,47 @@
 
 import Foundation
 
-// MARK: - TextTransformatorImplementation
+// MARK: - TextTransformerImplementation
 
-final class TextTransformatorImplementation {
+final class TextTransformerImplementation {
     
 }
 
-// MARK: - TextTransformmator
+// MARK: - TextTransformer
 
-extension TextTransformatorImplementation: TextTransformator {
+extension TextTransformerImplementation: TextTransformer {
     
-    func transformText(in fileData: [String: Any], with parameters: [String: String]) throws -> [String: Any] {
-        var transformatedFileData: [String: Any] = [:]
+    func modifyText(in fileData: Parameters, with parameters: [String: String]) throws -> Parameters {
+        var modifiedFileData: Parameters = [:]
         for (dataKey,dataValue) in fileData {
-            if let dictArray = dataValue as? [[String: Any]] {
-                var newDictArray: [[String: Any]] = []
+            if let dictArray = dataValue as? [Parameters] {
+                var newDictArray: [Parameters] = []
                 for dictElement in dictArray {
-                    newDictArray.append(try transformText(in: dictElement, with: parameters))
+                    newDictArray.append(try modifyText(in: dictElement, with: parameters))
                 }
-                transformatedFileData[dataKey] = newDictArray
+                modifiedFileData[dataKey] = newDictArray
             } else if let anyArray = dataValue as? [Any] {
                 if !anyArray.isEmpty {
                     var newAnyArray: [Any] = []
                     for arrayElement in anyArray {
                         if let stringElement = arrayElement as? String {
-                            newAnyArray.append(try trasformated(string: stringElement, parameters: parameters))
+                            newAnyArray.append(try modify(string: stringElement, parameters: parameters))
                         } else {
                             newAnyArray.append(arrayElement)
                         }
                     }
-                    transformatedFileData[dataKey] = newAnyArray
+                    modifiedFileData[dataKey] = newAnyArray
                 }
             } else if let stringElement = dataValue as? String {
-                transformatedFileData[dataKey] = try trasformated(string: stringElement, parameters: parameters)
+                modifiedFileData[dataKey] = try modify(string: stringElement, parameters: parameters)
             }
         }
-        return transformatedFileData
+        return modifiedFileData
     }
     
     // MARK: - Private
     
-    /// Applies all transformation functions to a string (such as 'removeBackslahes', 'insertParametersValues', etc.)
+    /// Applies all modificating functions to a string (such as 'removeBackslahes', 'insertParametersValues', etc.)
     ///
     /// Example:
     ///
@@ -56,23 +56,23 @@ extension TextTransformatorImplementation: TextTransformator {
     ///         "someParameterWithoutFunctions": "someParameterValueWithoutFunctions"
     ///         "otherParameter": "otherParameterValue",
     ///     ]
-    ///     let transformatedString = transformated(string: someString, parameters: parameters)
+    ///     let modifiedString = transformated(string: someString, parameters: parameters)
     ///
-    /// And 'transformatedString' has the form:
+    /// And 'modifiedString' has the form:
     ///
     ///     "string with some parameters someParameterValueWithoutFunctions some text OtherParameterValue"
     ///
     /// - Parameters:
-    ///   - string: a string to transform
+    ///   - string: a string to modify
     ///   - parameters: parameters whose values will be inserted
     /// - Throws: Unknown function (the case when the parameter has an undefined function)
-    /// - Returns: a transformated string
-    private func trasformated(string: String, parameters: [String: String]) throws -> String {
-        var transformString = string
-        transformString = transformString.removeBackslahes()
-        transformString = transformString.insertParametersValues(parameters: parameters)
-        transformString = try findAndApplyFunctions(in: transformString, with: parameters)
-        return transformString
+    /// - Returns: a modified string
+    private func modify(string: String, parameters: [String: String]) throws -> String {
+        var modifiedString = string
+        modifiedString = modifiedString.removingBackslahes()
+        modifiedString = modifiedString.insertParametersValues(parameters: parameters)
+        modifiedString = try findAndApplyFunctions(in: modifiedString, with: parameters)
+        return modifiedString
     }
     
     
@@ -85,9 +85,9 @@ extension TextTransformatorImplementation: TextTransformator {
     ///         "someParameterWithoutFunctions": "someParameterValueWithoutFunctions",
     ///         "otherParameter": "otherParameterValue"
     ///     ]
-    ///     let transformatedString = findAndApplyFunctions(in: someString, with: parameters)
+    ///     let modifiedString = findAndApplyFunctions(in: someString, with: parameters)
     ///
-    /// And 'transformatedString' has the form:
+    /// And 'modifiedString' has the form:
     ///
     ///     "some text someParameterValueWithoutFunctions some text Otherparametervalue"
     ///

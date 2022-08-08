@@ -1,5 +1,5 @@
 //
-//  BundleDecoderImplementation.swift
+//  DecoderImplementation.swift
 //  
 //
 //  Created by Gleb Kovalenko on 31.07.2022.
@@ -7,15 +7,15 @@
 
 import Foundation
 
-// MARK: - BundleDecoderImplementation
+// MARK: - DecoderImplementation
 
-final class BundleDecoderImplementation {
+final class DecoderImplementation {
     
 }
 
-// MARK: - BundleDecoder
+// MARK: - Decoder
 
-extension BundleDecoderImplementation: BundleDecoder {
+extension DecoderImplementation: Decoder {
     
     func decode<T: Codable>(data: Data) throws -> T {
         let decoder = JSONDecoder()

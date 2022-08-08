@@ -13,10 +13,9 @@ extension String {
     
     /// Replace "\/" combination with "/"
     /// - Returns: new string with replacing
-    func removeBackslahes() -> String {
+    func removingBackslahes() -> String {
         self.replacingOccurrences(of: "\\/", with: "/")
     }
-    
     
     /// Inserts parameter values into a string
     ///
@@ -24,9 +23,9 @@ extension String {
     ///
     ///     let someString = "sometext ${someParameter}some text"
     ///     let dictWithParameter = ["someParameter": "someValueParameter"]
-    ///     let transformatedString = someString.insertParametersNames(parameters: dictWithParameter)
+    ///     let modifiedString = someString.insertParametersNames(parameters: dictWithParameter)
     ///
-    /// And 'transformatedString' has the form:
+    /// And 'modifiedString' has the form:
     ///
     ///     "sometext ${someValueParameter}some text"
     ///
@@ -40,10 +39,15 @@ extension String {
         return newString
     }
     
-    
     /// Makes the first letter in a string lowercase
     /// - Returns: A string whose first letter is lowercase
     func lcfirst() -> String {
-        return self.prefix(1).lowercased() + self.dropFirst()
+        prefix(1).lowercased() + dropFirst()
+    }
+    
+    /// Makes the first letter in a string uppercase
+    /// - Returns: A string whose first letter is uppercase
+    func ucfirst() -> String {
+        prefix(1).uppercased() + dropFirst()
     }
 }

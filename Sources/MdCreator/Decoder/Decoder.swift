@@ -1,5 +1,5 @@
 //
-//  BundleDecoder.swift
+//  Decoder.swift
 //  
 //
 //  Created by Gleb Kovalenko on 31.07.2022.
@@ -7,9 +7,9 @@
 
 import Foundation
 
-// MARK: - BundleDecoder
+// MARK: - Decoder
 
-protocol BundleDecoder {
+protocol Decoder {
     
     /// Decode data in codable struct
     /// - Parameter data: data from file to decode

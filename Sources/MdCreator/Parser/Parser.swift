@@ -1,5 +1,5 @@
 //
-//  CodableParser.swift
+//  Parser.swift
 //  
 //
 //  Created by Gleb Kovalenko on 01.08.2022.
@@ -7,9 +7,9 @@
 
 import Foundation
 
-// MARK: - CodableParser
+// MARK: - Parser
 
-protocol CodableParser {
+protocol Parser {
     
     /// Find the required parameters in the data
     ///
@@ -38,5 +38,5 @@ protocol CodableParser {
     /// 
     /// - Parameter data: Data from which you need to get all the necessary parameters
     /// - Returns: Dictionary with the names of the required parameters. Values are set as an empty string
-    func requiredParameters(from data: [String: Any]) -> [String: String]
+    func requiredParameters(from data: Parameters) -> [String: String]
 }
