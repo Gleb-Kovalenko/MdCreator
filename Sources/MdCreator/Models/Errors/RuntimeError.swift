@@ -11,6 +11,8 @@ import Foundation
 
 enum RuntimeError: Error {
     case filesNotFound
+    case parseError(file: String)
+    case unknownFunction(function: String)
 }
 
 // MARK: - LocalizedError
@@ -20,6 +22,10 @@ extension RuntimeError: LocalizedError {
         switch self {
         case .filesNotFound:
             return "Runtime error: no .tcbundle files in directory"
+        case .parseError:
+            return "Runtime error: File cannot be parsed"
+        case .unknownFunction(let function):
+            return "Runtime error: function '\(function)' is not defined"
         }
     }
 }

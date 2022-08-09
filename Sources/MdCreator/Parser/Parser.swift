@@ -1,5 +1,5 @@
 //
-//  CodableParser.swift
+//  Parser.swift
 //  
 //
 //  Created by Gleb Kovalenko on 01.08.2022.
@@ -7,32 +7,9 @@
 
 import Foundation
 
-// MARK: - CodableParser
+// MARK: - Parser
 
-protocol CodableParser {
-    
-    /// Gets all properties from a file data with their values
-    ///
-    /// Example:
-    ///
-    ///     struct SomeStrcut: Codable {
-    ///         var firstProterty: String = "hello"
-    ///         var secondProperty: Character = "!"
-    ///         var thirdProperty: Int = 3
-    ///     }
-    ///     let resultFunction: [String: Any] = allProperties(from: SomeStruct)
-    ///
-    /// And 'resultFunction' has the form:
-    ///
-    ///     [
-    ///       "firstProperty": "hello",
-    ///       "secondProperty": "!",
-    ///       "thirdProperty": 3
-    ///     ]
-    ///
-    /// - Parameter fileData: File data to get all properties from
-    /// - Returns: Dictionary with file's properties and values
-    func allProperties(from fileData: Codable) -> [String: Any]
+protocol Parser {
     
     /// Find the required parameters in the data
     ///
@@ -61,5 +38,5 @@ protocol CodableParser {
     /// 
     /// - Parameter data: Data from which you need to get all the necessary parameters
     /// - Returns: Dictionary with the names of the required parameters. Values are set as an empty string
-    func requiredParameters(from data: [String: Any]) -> [String: String]
+    func requiredParameters(from data: Parameters) -> [String: String]
 }
