@@ -39,19 +39,23 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType>
     ///   - decoder: Decoder instance
     ///   - parser: Parser instance
     ///   - textTransformer: Text tranformer instance
-    init(directory: String, isNeedToMerge: Bool, decoder: DecoderType, parser: ParserType, textTransformer: TextTransformerType) {
+    init(
+        directory: String,
+        isNeedToMerge: Bool,
+        decoder: DecoderType,
+        parser: ParserType,
+        textTransformer: TextTransformerType
+    ) {
         self.directory = directory
         self.isNeedToMerge = isNeedToMerge
         self.decoder = decoder
         self.parser = parser
         self.textTransformer = textTransformer
     }
-}
 
-// MARK: - MdCreatorProtocol
-
-extension MdCreatorApp: MdCreatorProtocol {
-    
+    /// Main function, that takes all .tcbundle files from directory, if exists, and then decode, parse and convert data.
+    /// Then create .md files with the specified structure.
+    /// - Throws: Runtime errors (ex. "files not found", when there are no .tcbundle files in directory), decoder errors (ex. "can't decode file") and so on
     func run() throws {
         
         var requiredParameters: [String: String] = [:]
@@ -64,7 +68,7 @@ extension MdCreatorApp: MdCreatorProtocol {
         }
         for bundleFile in bundleFiles {
             if let jsonData = try String(contentsOfFile: "\(directory)/\(bundleFile)").data(using: .utf8) {
-                guard let parsedData = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+                guard let parsedData = try JSONSerialization.jsonObject(with: jsonData) as? Parameters else {
                     throw RuntimeError.parseError(file: bundleFile)
                 }
                 let decodedData: TCBundle = try decoder.decode(data: jsonData)

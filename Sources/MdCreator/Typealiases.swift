@@ -7,4 +7,6 @@
 
 import Foundation
 
+// MARK: - Aliases
+
 typealias Parameters = [String: Any]
