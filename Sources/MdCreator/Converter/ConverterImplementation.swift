@@ -92,7 +92,6 @@ extension ConverterImplementation: Converter {
     ///     someString += findText(in: someData, match: someEnum.NonExistentFile, to: someString, with: parameters, isNeedToMerge: isNeedToMerge) + "\n"
     ///     // "someString" = "hello nested world\ni'm so deep\nnotFoundMatch\n"
     ///
-    ///
     /// - Parameters:
     ///   - section: The data where the required element is searched for
     ///   - template: A template that describes the path to the element, its properties and necessary functions

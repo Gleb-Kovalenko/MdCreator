@@ -13,7 +13,6 @@ enum RuntimeError: Error {
     case filesNotFound
     case parseError(file: String)
     case unknownFunction(function: String)
-    case wrongCaseName(caseRawValue: String)
     case invalidParameterName(name: String)
     case fileNotCreated
 }
@@ -29,8 +28,6 @@ extension RuntimeError: LocalizedError {
             return "Runtime error: File \(file) cannot be parsed"
         case .unknownFunction(let function):
             return "Runtime error: function '\(function)' is not defined"
-        case .wrongCaseName(let caseRawValue):
-            return "Runtime error: could not find element for case '\(caseRawValue)'"
         case .invalidParameterName(let name):
             return "Runtime error: could not find parameter '\(name)' in required parameters"
         case .fileNotCreated:
