@@ -36,6 +36,9 @@ extension String {
         for (parameterName, parameterValue) in parameters {
             newString = newString.replacingOccurrences(of: "${\(parameterName)", with: "${\(parameterValue)")
         }
+        for (parameterName, parameterValue) in parameters {
+            newString = newString.replacingOccurrences(of: "${\(parameterValue):", with: "${\(parameterName):")
+        }
         return newString
     }
     
@@ -49,5 +52,14 @@ extension String {
     /// - Returns: A string whose first letter is uppercase
     func ucfirst() -> String {
         prefix(1).uppercased() + dropFirst()
+    }
+    
+    /// Repeat string some number of times
+    /// - Parameters:
+    ///    - lhs: String to repeat
+    ///    - rhs: Repeat count
+    /// - Returns: Repeated string
+    static func * (lhs: String, rhs: Int) -> String {
+        return String(repeating: lhs, count: rhs)
     }
 }

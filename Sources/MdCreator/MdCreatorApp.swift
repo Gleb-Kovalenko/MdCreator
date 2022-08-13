@@ -9,11 +9,12 @@ import Foundation
 
 // MARK: - MdCreatorApp
 
-final class MdCreatorApp<DecoderType, ParserType, TextTransformerType>
+final class MdCreatorApp<DecoderType, ParserType, TextTransformerType, ConverterType>
     where
         DecoderType: Decoder,
         ParserType: Parser,
-        TextTransformerType: TextTransformer {
+        TextTransformerType: TextTransformer,
+        ConverterType: Converter {
         
     // MARK: - Properties
         
@@ -23,34 +24,46 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType>
     /// Parser instance
     private let parser: ParserType
     
-    /// Test transformer instance
+    /// Text transformer instance
     private let textTransformer: TextTransformerType
     
+    /// Converter instance
+    private let converter: ConverterType
+    
     /// Directory with files
-    private let directory: String
+    private let inDirectory: String
+    
+    /// Directory where the files will save
+    private let outDirectory: String
         
     /// Indicates whether the expanders in the file should be combined into a single .md file
     private let isNeedToMerge: Bool
     
     /// Default initializer
     /// - Parameters:
-    ///   - directory: Directory with files
+    ///   - inDirectory: Directory with files
+    ///   - outDirectory: Directory where the files will save
     ///   - isNeedToMerge: Indicates whether the expanders in the file should be combined into a single .md file
     ///   - decoder: Decoder instance
     ///   - parser: Parser instance
     ///   - textTransformer: Text tranformer instance
+    ///   - converter: Converter instance
     init(
-        directory: String,
+        inDirectory: String,
+        outDirectory: String,
         isNeedToMerge: Bool,
         decoder: DecoderType,
         parser: ParserType,
-        textTransformer: TextTransformerType
+        textTransformer: TextTransformerType,
+        converter: ConverterType
     ) {
-        self.directory = directory
+        self.inDirectory = inDirectory
+        self.outDirectory = outDirectory
         self.isNeedToMerge = isNeedToMerge
         self.decoder = decoder
         self.parser = parser
         self.textTransformer = textTransformer
+        self.converter = converter
     }
 
     /// Main function, that takes all .tcbundle files from directory, if exists, and then decode, parse and convert data.
@@ -62,12 +75,13 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType>
         var modifiedFiles: [Parameters] = []
         var parsedFiles: [Parameters] = []
         
-        let bundleFiles = try bundleFiles(from: directory)
+        let bundleFiles = try bundleFiles(from: inDirectory)
         if bundleFiles.count == 0 {
             throw RuntimeError.filesNotFound
         }
+        
         for bundleFile in bundleFiles {
-            if let jsonData = try String(contentsOfFile: "\(directory)/\(bundleFile)").data(using: .utf8) {
+            if let jsonData = try String(contentsOfFile: "\(inDirectory)/\(bundleFile)").data(using: .utf8) {
                 guard let parsedData = try JSONSerialization.jsonObject(with: jsonData) as? Parameters else {
                     throw RuntimeError.parseError(file: bundleFile)
                 }
@@ -76,15 +90,22 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType>
                 requiredParameters.merge(parser.requiredParameters(from: parsedData)) { (current, _) in current }
             }
         }
+        
         for parameterName in requiredParameters.keys {
             print("Enter name for '\(parameterName)' parameter: ", terminator: "")
             let enteredName = readLine()
             requiredParameters[parameterName] = enteredName
         }
+        
         for parsedFile in parsedFiles {
             modifiedFiles.append(try textTransformer.modifyText(in: parsedFile, with: requiredParameters))
         }
-        print(modifiedFiles)
+        
+        let convertedFiles = try converter.convert(files: modifiedFiles, parameters: requiredParameters, isNeedToMerge: isNeedToMerge, template: MdFileTemplate.self)
+        
+        try createMdFiles(text: convertedFiles)
+        print("Success")
+        
     }
     
     // MARK: - Private
@@ -96,5 +117,21 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType>
     private func bundleFiles(from directory: String) throws -> [String] {
         let filesInDirectory = try FileManager.default.contentsOfDirectory(atPath: directory)
         return filesInDirectory.filter { $0.hasSuffix(".tcbundle") }
+    }
+    
+    /// Create md files
+    /// - Parameter text: An array of parts of the text that will be in the files
+    /// - Throws: file not created error
+    private func createMdFiles(text: [String]) throws {
+        let fileManager = FileManager.default
+        try fileManager.createDirectory(atPath: outDirectory + "/NewMdFiles", withIntermediateDirectories: true)
+        for i in 0..<text.count {
+            let filePath = outDirectory + "/NewMdFiles/file\(i).md"
+            if (fileManager.createFile(atPath: filePath, contents: text[i].data(using: .utf8))) {
+                print("File created successfully.")
+            } else {
+                throw RuntimeError.fileNotCreated
+            }
+        }
     }
 }

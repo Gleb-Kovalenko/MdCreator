@@ -40,6 +40,10 @@ extension TextTransformerImplementation: TextTransformer {
                 }
             } else if let stringElement = dataValue as? String {
                 modifiedFileData[dataKey] = try modify(string: stringElement, parameters: parameters)
+            } else if let boolValue = dataValue as? Bool {
+                modifiedFileData[dataKey] = boolValue
+            } else {
+                modifiedFileData[dataKey] = fileData[dataKey]
             }
         }
         return modifiedFileData
