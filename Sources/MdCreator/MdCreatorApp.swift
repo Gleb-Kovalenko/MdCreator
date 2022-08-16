@@ -9,17 +9,13 @@ import Foundation
 
 // MARK: - MdCreatorApp
 
-final class MdCreatorApp<DecoderType, ParserType, TextTransformerType, ConverterType>
+final class MdCreatorApp<ParserType, TextTransformerType, ConverterType>
     where
-        DecoderType: Decoder,
         ParserType: Parser,
         TextTransformerType: TextTransformer,
         ConverterType: Converter {
         
     // MARK: - Properties
-        
-    /// Decoder instance
-    private let decoder: DecoderType
     
     /// Parser instance
     private let parser: ParserType
@@ -44,7 +40,6 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType, Converter
     ///   - inDirectory: Directory with files
     ///   - outDirectory: Directory where the files will save
     ///   - isNeedToMerge: Indicates whether the expanders in the file should be combined into a single .md file
-    ///   - decoder: Decoder instance
     ///   - parser: Parser instance
     ///   - textTransformer: Text tranformer instance
     ///   - converter: Converter instance
@@ -52,7 +47,6 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType, Converter
         inDirectory: String,
         outDirectory: String,
         isNeedToMerge: Bool,
-        decoder: DecoderType,
         parser: ParserType,
         textTransformer: TextTransformerType,
         converter: ConverterType
@@ -60,7 +54,6 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType, Converter
         self.inDirectory = inDirectory
         self.outDirectory = outDirectory
         self.isNeedToMerge = isNeedToMerge
-        self.decoder = decoder
         self.parser = parser
         self.textTransformer = textTransformer
         self.converter = converter
@@ -85,7 +78,6 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType, Converter
                 guard let parsedData = try JSONSerialization.jsonObject(with: jsonData) as? Parameters else {
                     throw RuntimeError.parseError(file: bundleFile)
                 }
-                let decodedData: TCBundle = try decoder.decode(data: jsonData)
                 parsedFiles.append(parsedData)
                 requiredParameters.merge(parser.requiredParameters(from: parsedData)) { (current, _) in current }
             }
@@ -100,10 +92,15 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType, Converter
         for parsedFile in parsedFiles {
             modifiedFiles.append(try textTransformer.modifyText(in: parsedFile, with: requiredParameters))
         }
+
+        let convertedFiles = try converter.convert(
+            files: modifiedFiles,
+            parameters: requiredParameters,
+            isNeedToMerge: isNeedToMerge,
+            template: MdFileTemplate.self
+        )
         
-        let convertedFiles = try converter.convert(files: modifiedFiles, parameters: requiredParameters, isNeedToMerge: isNeedToMerge, template: MdFileTemplate.self)
-        
-        try createMdFiles(text: convertedFiles)
+        try createMdFiles(files: convertedFiles)
         print("Success")
         
     }
@@ -120,14 +117,15 @@ final class MdCreatorApp<DecoderType, ParserType, TextTransformerType, Converter
     }
     
     /// Create md files
-    /// - Parameter text: An array of parts of the text that will be in the files
-    /// - Throws: file not created error
-    private func createMdFiles(text: [String]) throws {
-        let fileManager = FileManager.default
-        try fileManager.createDirectory(atPath: outDirectory + "/NewMdFiles", withIntermediateDirectories: true)
-        for i in 0..<text.count {
-            let filePath = outDirectory + "/NewMdFiles/file\(i).md"
-            if (fileManager.createFile(atPath: filePath, contents: text[i].data(using: .utf8))) {
+    /// - Parameter text: Dictionary with names and parts of the text that will be in the files
+    /// - Throws: File not created error
+    private func createMdFiles(files: [String: String]) throws {
+    let fileManager = FileManager.default
+    let pathName = "INCETRO - Snippets"
+    try fileManager.createDirectory(atPath: outDirectory + "/" + pathName, withIntermediateDirectories: true)
+        for (mdFilename, fileContent) in files {
+            let filePath = outDirectory + "/\(pathName)/\(mdFilename).md"
+            if (fileManager.createFile(atPath: filePath, contents: fileContent.data(using: .utf8))) {
                 print("File created successfully.")
             } else {
                 throw RuntimeError.fileNotCreated

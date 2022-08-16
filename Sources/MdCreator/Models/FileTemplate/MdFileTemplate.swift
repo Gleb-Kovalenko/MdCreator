@@ -13,15 +13,15 @@ enum MdFileTemplate: String, MdFileTemplateProtocol {
     
     // MARK: - Cases
     
-    case header = "name :header"
+    case header = "name :header :filename"
     case description = "description :header"
     case headerExpander = "/name"
     case syntaxExpander = "/pattern"
     case inputExampleExpander = "/pattern :modify $name"
     case outputExpander = "/output_template"
     
-    func printText(with element: Any) -> String {
-        switch self{
+    func text(with element: Any) -> String {
+        switch self {
         case .header:
             return """
             # \(element)

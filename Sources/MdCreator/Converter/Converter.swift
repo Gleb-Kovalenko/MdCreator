@@ -22,7 +22,7 @@ protocol Converter {
     ///
     ///     let someData = [
     ///     [
-    ///         "firstProp": "hello world",
+    ///         "firstProp": "hello world :filename",
     ///         "secondProp": [
     ///             [
     ///                 "firstNestedProp": "hello nested world",
@@ -45,7 +45,7 @@ protocol Converter {
     ///
     /// And 'resultWithMerge: has the form:
     ///
-    ///         ["hello world\n\ni'm so deep someValue\n\ni'm so deepx2\n\n"]
+    ///         ["hello world" : "hello world\n\ni'm so deep someValue\n\ni'm so deepx2\n\n"]
     ///
     /// Without merge example:
     ///
@@ -54,7 +54,8 @@ protocol Converter {
     ///
     /// And 'resultWithoutMerge: has the form:
     ///
-    ///     ["hello world\n\ni'm so deep someValue\n\n", "helloworld\n\ni'm so deepx2\n\n"]
+    ///     ["hello world": "hello world\n\ni'm so deep someValue\n\n",
+    ///     "hello world": "helloworld\n\ni'm so deepx2\n\n"]
     ///
     /// - Parameters:
     ///   - files: The data where the required element is searched for
@@ -62,11 +63,11 @@ protocol Converter {
     ///   - parameters: parameters with already known values whose values may be inserted
     ///   - isNeedToMerge: Indicates whether the expanders in the file should be combined into a single .md file
     /// - Throws: Invalid parameter name error
-    /// - Returns: An array of parts of the text that will be in the files
+    /// - Returns: Dictionary with names and parts of the text that will be in the files
     func convert<T: MdFileTemplateProtocol>(
         files: [Parameters],
         parameters: [String: String],
         isNeedToMerge: Bool,
         template: T.Type
-    ) throws -> [String]
+    ) throws -> [String: String]
 }

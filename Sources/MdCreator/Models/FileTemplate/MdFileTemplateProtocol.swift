@@ -35,10 +35,10 @@ import Foundation
 ///
 protocol MdFileTemplateProtocol: CaseIterable, RawRepresentable where Self.RawValue == String {
     
-    /// Print text according to template
+    /// Get text according to template
     /// - Parameter element: The element with which the text will be printed
     /// - Returns: Text with element
-    func printText(with element: Any) -> String
+    func text(with element: Any) -> String
 }
 
 // MARK: - MdFileTemplateProtocol
@@ -51,6 +51,11 @@ extension MdFileTemplateProtocol {
     /// That is, if merging is required, it will be in a single copy
     var isFileHeader: Bool {
         self.rawValue.contains(":header")
+    }
+    
+    /// A property that indicates that the template is a name for a file
+    var isFileName: Bool {
+        self.rawValue.contains(":filename")
     }
     
     /// A property that indicates that completely identical given patterns can occur in a file

@@ -22,7 +22,7 @@ struct MdCreator: ParsableCommand {
     @Option(name: .shortAndLong, help: "Directory where the files will save")
     var outDirectory: String = FileManager.default.currentDirectoryPath
     
-    @Flag(name: .shortAndLong, help: "Merge all expanders in one .md file")
+    @Flag(name: .shortAndLong, help: "Merge all files in one .md file")
     var merge = false
 
     mutating func run() throws {
@@ -30,7 +30,6 @@ struct MdCreator: ParsableCommand {
             inDirectory: inDirectory,
             outDirectory: outDirectory,
             isNeedToMerge: merge,
-            decoder: DecoderImplementation(),
             parser: ParserImplementation(),
             textTransformer: TextTransformerImplementation(),
             converter: ConverterImplementation()

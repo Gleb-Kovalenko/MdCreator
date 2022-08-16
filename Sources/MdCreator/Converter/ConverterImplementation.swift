@@ -22,38 +22,45 @@ extension ConverterImplementation: Converter {
         parameters: [String: String],
         isNeedToMerge: Bool,
         template: T.Type
-    ) throws -> [String] {
+    ) throws -> [String: String] {
         
-        var convertedText = ""
-        var partOfText = ""
-        var partsOfConvertedText: [String] = []
-        var isContinueToSearch = true
+        var partsOfConvertedText: [String: String] = [:]
         
-        while isContinueToSearch {
-            for partTemplate in T.allCases {
-                let result = try findText(in: files, match: partTemplate, to: convertedText, with: parameters, isNeedToMerge: isNeedToMerge)
-                if result != "notFoundMatch" {
-                    partOfText += result + "\n\n"
-                } else {
-                    if !partTemplate.isFileHeader {
-                        partOfText = ""
-                        isContinueToSearch = false
-                        break
+        for file in files {
+            var convertedText = ""
+            var fileName = ""
+            var isContinueToSearch = true
+            while isContinueToSearch {
+                for partTemplate in T.allCases {
+                    
+                    if partTemplate.isFileName {
+                        fileName = findFileName(in: Array(arrayLiteral: file), match: partTemplate)
+                    }
+                    
+                    let result = try findText(
+                        in: Array(arrayLiteral: file),
+                        match: partTemplate,
+                        to: convertedText,
+                        with: parameters
+                    )
+                    if result != "notFoundMatch" {
+                        convertedText += result + "\n\n"
+                    } else {
+                        if !partTemplate.isFileHeader {
+                            isContinueToSearch = false
+                            break
+                        }
                     }
                 }
             }
-            
-            if partOfText != "" {
-                if !isNeedToMerge {
-                    partsOfConvertedText.append(partOfText)
-                }
-                convertedText += partOfText
-                partOfText = ""
-            }
+            partsOfConvertedText[fileName] = convertedText
         }
         
         if isNeedToMerge {
-            partsOfConvertedText.append(convertedText)
+            let allParts = partsOfConvertedText
+                                .map ( \.value )
+                                .reduce ("") { $0 + $1 }
+            partsOfConvertedText = ["INCETRO - Snippets": allParts]
         }
         
         return partsOfConvertedText
@@ -106,7 +113,6 @@ extension ConverterImplementation: Converter {
         match template: T,
         to text: String,
         with parameters: [String: String],
-        isNeedToMerge: Bool,
         nestingLevel: Int = 0
     ) throws -> String {
         var result = ""
@@ -115,17 +121,27 @@ extension ConverterImplementation: Converter {
                 if template.cleanPath == "\("/" * nestingLevel + elementKey)" {
                     var elementValue = elementValue
                     if let stringElement = elementValue as? String, template.needModifyParameter {
-                        elementValue = try modifyParameters(stringWithParameters: template.rawValue, stringToModify: stringElement, parameters: parameters)
+                        elementValue = try modifyParameters(
+                            stringWithParameters: template.rawValue,
+                            stringToModify: stringElement,
+                            parameters: parameters
+                        )
                     }
-                    result = template.printText(with: elementValue)
-                    if !text.contains(result) || template.mayRepeat || (!isNeedToMerge && template.isFileHeader) {
+                    result = template.text(with: elementValue)
+                    if !text.contains(result) || template.mayRepeat {
                         return result
                     }
                 }
             }
             for (elementKey, _) in file {
                 if let newSection = file[elementKey] as? [Parameters] {
-                    return try findText(in: newSection, match: template, to: text, with: parameters, isNeedToMerge: isNeedToMerge, nestingLevel: nestingLevel + 1)
+                    return try findText(
+                        in: newSection,
+                        match: template,
+                        to: text,
+                        with: parameters,
+                        nestingLevel: nestingLevel + 1
+                    )
                 }
             }
         }
@@ -152,7 +168,11 @@ extension ConverterImplementation: Converter {
     ///   - parameters: Parameters with already known values whose values may be inserted
     /// - Throws: Invalid parameter name error
     /// - Returns: Modified string or, if there was nothing to modify, the original string
-    private func modifyParameters(stringWithParameters: String, stringToModify: String, parameters: [String: String]) throws -> String {
+    private func modifyParameters(
+        stringWithParameters: String,
+        stringToModify: String,
+        parameters: [String: String]
+    ) throws -> String {
         var stringToFind = stringWithParameters
         var resultString = ""
         var nameOfParameter = ""
@@ -182,5 +202,39 @@ extension ConverterImplementation: Converter {
             }
         }
         return resultString == "" ? stringToModify : resultString
+    }
+    
+    
+    /// Find file name that accorded template
+    ///
+    /// - Parameters:
+    ///   - section: The data where the required element is searched for
+    ///   - template: A template that describes the path to the element
+    ///   - nestingLevel: Indicates the current level of nesting
+    /// - Returns: string that is the name of the file
+    private func findFileName<T: MdFileTemplateProtocol>(
+        in section: [Parameters],
+        match template: T,
+        nestingLevel: Int = 0
+    ) -> String {
+        for file in section {
+            for (elementKey, elementValue) in file {
+                if template.cleanPath == "\("/" * nestingLevel + elementKey)" {
+                    if let fileName = elementValue as? String {
+                        return fileName
+                    }
+                }
+            }
+            for (elementKey, _) in file {
+                if let newSection = file[elementKey] as? [Parameters] {
+                    return findFileName(
+                        in: newSection,
+                        match: template,
+                        nestingLevel: nestingLevel + 1
+                    )
+                }
+            }
+        }
+        return "notFoundMatch"
     }
 }
