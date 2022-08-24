@@ -7,6 +7,8 @@ PushToGit="true"
 
 cd $AppDir
 
+swift run MdCreator -i $FilesDir -o $SaveDir $Merge
+
 if [ 'true' = "$PushToGit" ]; then
 
     echo "Pushing README.md file to git..."
