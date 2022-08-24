@@ -1,10 +1,10 @@
-<div style="text-align:center">
+<div align="center" style="margin-top: 0px;">
 <img src ="https://downloader.disk.yandex.ru/preview/3377798f86593ec8481b5a7a8347374542d7cc885c4b1493bccb2f352fe505d5/63065b2e/ghg_hJytLbWNKkIqKFSU81I6VTAyu1gHDtfxphB0r-bmTSUEf2hWWO-vIfrSLQJYBft_-fglzwRa7fBRRbY6-Q%3D%3D?uid=0&filename=y-logos.jpeg&disposition=inline&hash=&limit=0&content_type=image%2Fjpeg&owner_uid=0&tknv=v2&size=1200x550" />
 </div>
 
-<h1 style="text-align:center">MdCreator</h1>
+<h1 align="center" style="margin-top: 0px;">MdCreator</h1>
 
-<p style="text-align:center">Script to help create README.md files</p>
+<p align="center" style="margin-top: 0px;">Script to help create README.md files</p>
 
 - [Features](#features)
 - [Input data](#input-data)
@@ -180,12 +180,13 @@ Just download this project and open the **run.command** file that stored in this
 
 #### *About run file*:
 
-This file has a  value which you need to update:
+This file has a value which you need to update:
 
  - FilesDir - a path where input data strored
  - SaveDir - a path where output files will save
  - Merge - indicates whether files should be combined into a single .md file
  - PushToGit - indicates whether README.md file should be push to git automatically
+ - GitRep - git repository for push
 
 There are also has a git part, responsible for pushing new snippets to the collection.
 I highly recommend to check it and set it for your own.

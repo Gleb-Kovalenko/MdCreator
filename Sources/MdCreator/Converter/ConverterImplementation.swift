@@ -31,36 +31,32 @@ extension ConverterImplementation: Converter {
             var fileName = ""
             var isContinueToSearch = true
             while isContinueToSearch {
-                for partTemplate in T.allCases {
-                    
-                    if partTemplate.isFileName {
-                        fileName = findFileName(in: Array(arrayLiteral: file), match: partTemplate)
-                    }
-                    
-                    let result = try findText(
-                        in: Array(arrayLiteral: file),
-                        match: partTemplate,
-                        to: convertedText,
-                        with: parameters
-                    )
-                    if result != "notFoundMatch" {
-                        convertedText += result + "\n\n"
-                    } else {
-                        if !partTemplate.isFileHeader {
-                            isContinueToSearch = false
-                            break
-                        }
-                    }
-                }
-            }
+               for partTemplate in T.allCases {
+                   if partTemplate.isFileName {
+                       fileName = findFileName(in: Array(arrayLiteral: file), match: partTemplate)
+                   }
+                   let result = try findText(
+                       in: Array(arrayLiteral: file),
+                       match: partTemplate,
+                       to: convertedText,
+                       with: parameters
+                   )
+                   if result != "notFoundMatch" {
+                       convertedText += result + "\n\n"
+                   } else {
+                       if !partTemplate.isFileHeader {
+                           isContinueToSearch = false
+                           break
+                       }
+                   }
+               }
+           }
             partsOfConvertedText[fileName] = convertedText
         }
         
         if isNeedToMerge {
-            let allParts = partsOfConvertedText
-                                .map ( \.value )
-                                .reduce ("") { $0 + $1 }
-            partsOfConvertedText = ["INCETRO - Snippets": allParts]
+            let allParts = partsOfConvertedText.map(\.value).reduce("", +)
+            partsOfConvertedText = ["README": allParts]
         }
         
         return partsOfConvertedText

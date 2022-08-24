@@ -27,7 +27,7 @@ protocol Converter {
     ///             [
     ///                 "firstNestedProp": "hello nested world",
     ///                 "secondNestedProp": [
-    ///                 "soDeepProp": "i'm so deep ${someParameter:something}"
+    ///                     "soDeepProp": "i'm so deep ${someParameter:something}"
     ///                 ],
     ///             ],
     ///             [
@@ -45,7 +45,7 @@ protocol Converter {
     ///
     /// And 'resultWithMerge: has the form:
     ///
-    ///         ["hello world" : "hello world\n\ni'm so deep someValue\n\ni'm so deepx2\n\n"]
+    ///     ["hello world" : "hello world\n\ni'm so deep someValue\n\ni'm so deepx2\n\n"]
     ///
     /// Without merge example:
     ///
@@ -54,13 +54,15 @@ protocol Converter {
     ///
     /// And 'resultWithoutMerge: has the form:
     ///
-    ///     ["hello world": "hello world\n\ni'm so deep someValue\n\n",
-    ///     "hello world": "helloworld\n\ni'm so deepx2\n\n"]
+    ///     [
+    ///         "hello world": "hello world\n\ni'm so deep someValue\n\n",
+    ///         "hello world": "helloworld\n\ni'm so deepx2\n\n"
+    ///     ]
     ///
     /// - Parameters:
     ///   - files: The data where the required element is searched for
     ///   - template: A template that describes the path to the element, its properties and necessary functions
-    ///   - parameters: parameters with already known values whose values may be inserted
+    ///   - parameters: Parameters with already known values whose values may be inserted
     ///   - isNeedToMerge: Indicates whether the expanders in the file should be combined into a single .md file
     /// - Throws: Invalid parameter name error
     /// - Returns: Dictionary with names and parts of the text that will be in the files

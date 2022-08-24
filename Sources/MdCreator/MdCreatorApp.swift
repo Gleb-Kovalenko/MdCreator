@@ -16,7 +16,7 @@ final class MdCreatorApp<ParserType, TextTransformerType, ConverterType>
         ConverterType: Converter {
         
     // MARK: - Properties
-    
+            
     /// Parser instance
     private let parser: ParserType
     
@@ -32,14 +32,14 @@ final class MdCreatorApp<ParserType, TextTransformerType, ConverterType>
     /// Directory where the files will save
     private let outDirectory: String
         
-    /// Indicates whether the expanders in the file should be combined into a single .md file
+    /// Indicates whether files should be combined into a single .md file
     private let isNeedToMerge: Bool
     
     /// Default initializer
     /// - Parameters:
     ///   - inDirectory: Directory with files
     ///   - outDirectory: Directory where the files will save
-    ///   - isNeedToMerge: Indicates whether the expanders in the file should be combined into a single .md file
+    ///   - isNeedToMerge: Indicates whether files should be combined into a single .md file
     ///   - parser: Parser instance
     ///   - textTransformer: Text tranformer instance
     ///   - converter: Converter instance
@@ -120,11 +120,9 @@ final class MdCreatorApp<ParserType, TextTransformerType, ConverterType>
     /// - Parameter text: Dictionary with names and parts of the text that will be in the files
     /// - Throws: File not created error
     private func createMdFiles(files: [String: String]) throws {
-    let fileManager = FileManager.default
-    let pathName = "INCETRO - Snippets"
-    try fileManager.createDirectory(atPath: outDirectory + "/" + pathName, withIntermediateDirectories: true)
+        let fileManager = FileManager.default
         for (mdFilename, fileContent) in files {
-            let filePath = outDirectory + "/\(pathName)/\(mdFilename).md"
+            let filePath = outDirectory + "/\(mdFilename).md"
             if (fileManager.createFile(atPath: filePath, contents: fileContent.data(using: .utf8))) {
                 print("File created successfully.")
             } else {
