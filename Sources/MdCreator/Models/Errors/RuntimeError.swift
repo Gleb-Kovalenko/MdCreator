@@ -34,7 +34,7 @@ extension RuntimeError: LocalizedError {
         case .fileNotCreated:
             return "Runtime error: file not created"
         case .syntaxError(let string):
-            return "Wrong syntax in '\(string)'"
+            return "Runtime error: Wrong syntax in '\(string)'"
         }
     }
 }

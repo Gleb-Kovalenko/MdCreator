@@ -74,6 +74,28 @@ enum MdFileTemplate: String, MdFileTemplateProtocol {
     case inputExampleExpander = "/pattern :modify $name"
     case outputExpander = "/output_template"
     
+    // MARK: - MdFileTemplateProtocol
+    
+    var isFileHeader: Bool {
+        rawValue.contains(":header")
+    }
+    
+    var isFileName: Bool {
+        rawValue.contains(":filename")
+    }
+    
+    var mayRepeat: Bool {
+        rawValue.contains(":repeat")
+    }
+    
+    var needModifyParameter: Bool {
+        rawValue.contains(":modify")
+    }
+    
+    var cleanPath: String {
+        String(rawValue.split(separator: " ")[0])
+    }
+    
     func text(with element: Any) -> String {
         switch self {
         case .header:
