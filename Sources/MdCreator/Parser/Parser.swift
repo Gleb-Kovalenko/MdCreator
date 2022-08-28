@@ -14,7 +14,6 @@ protocol Parser {
     /// Find the required parameters in the data
     ///
     /// The parameters are specified in the form ${parameterName} or ${parameterName.someFunction}
-    /// and the parameter name must consist only of letters
     ///
     /// Example:
     ///
@@ -31,12 +30,9 @@ protocol Parser {
     ///
     /// And 'parametersFromSomeData' has the form:
     ///
-    ///     [
-    ///       "firstParameter": "",
-    ///       "secondParameter": ""
-    ///     ]
+    ///     ["firstParameter", "secondParameter"]
     /// 
     /// - Parameter data: Data from which you need to get all the necessary parameters
-    /// - Returns: Dictionary with the names of the required parameters. Values are set as an empty string
-    func requiredParameters(from data: Parameters) -> [String: String]
+    /// - Returns: Set with the names of the required parameters
+    func requiredParameters(from data: Parameters) throws -> Set<String>
 }

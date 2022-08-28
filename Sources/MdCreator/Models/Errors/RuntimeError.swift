@@ -15,6 +15,7 @@ enum RuntimeError: Error {
     case unknownFunction(function: String)
     case invalidParameterName(name: String)
     case fileNotCreated
+    case syntaxError(string: String)
 }
 
 // MARK: - LocalizedError
@@ -32,6 +33,8 @@ extension RuntimeError: LocalizedError {
             return "Runtime error: could not find parameter '\(name)' in required parameters"
         case .fileNotCreated:
             return "Runtime error: file not created"
+        case .syntaxError(let string):
+            return "Wrong syntax in '\(string)'"
         }
     }
 }

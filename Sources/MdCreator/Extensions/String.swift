@@ -34,10 +34,8 @@ extension String {
     func insertParametersValues(parameters: [String: String]) -> String {
         var newString = self
         for (parameterName, parameterValue) in parameters {
-            newString = newString.replacingOccurrences(of: "${\(parameterName)", with: "${\(parameterValue)")
-        }
-        for (parameterName, parameterValue) in parameters {
-            newString = newString.replacingOccurrences(of: "${\(parameterValue):", with: "${\(parameterName):")
+            newString = newString.replacingOccurrences(of: "${\(parameterName).", with: "${\(parameterValue).")
+            newString = newString.replacingOccurrences(of: "${\(parameterName)}", with: parameterValue)
         }
         return newString
     }
@@ -60,6 +58,6 @@ extension String {
     ///    - rhs: Repeat count
     /// - Returns: Repeated string
     static func * (lhs: String, rhs: Int) -> String {
-        return String(repeating: lhs, count: rhs)
+        String(repeating: lhs, count: rhs)
     }
 }

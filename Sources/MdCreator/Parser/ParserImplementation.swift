@@ -17,34 +17,25 @@ final class ParserImplementation {
 
 extension ParserImplementation: Parser {
 
-    func requiredParameters(from data: Parameters) -> [String: String] {
-        var requiredParametersDict: [String: String] = [:]
-        let dataValues = data.map ( \.value )
-        for dataValue in dataValues {
-            if let dictArray = dataValue as? [Parameters] {
-                for dictElement in dictArray {
-                    let elementParameters = requiredParameters(from: dictElement)
-                    requiredParametersDict.merge(elementParameters) { (current, _) in current }
+    func requiredParameters(from data: Parameters) throws -> Set<String> {
+        var requiredParametersArr = Set<String>()
+        _ = try data.jsonMap(
+            arrayDict: {
+                _ = try $0.map {
+                    let elementParameters = try requiredParameters(from: $0)
+                    requiredParametersArr = requiredParametersArr.union(elementParameters)
                 }
-            } else if let anyArray = dataValue as? [Any] {
-                if !anyArray.isEmpty {
-                    for arrayElement in anyArray {
-                        if let stringElement = arrayElement as? String {
-                            let parametersFromElement = requiredParameters(from: stringElement)
-                            for parameter in parametersFromElement {
-                                requiredParametersDict[parameter] = ""
-                            }
-                        }
-                    }
-                }
-            } else if let stringElement = dataValue as? String {
-                let parametersFromElement = requiredParameters(from: stringElement)
-                for parameter in parametersFromElement {
-                    requiredParametersDict[parameter] = ""
-                }
-            }
-        }
-        return requiredParametersDict
+                return $0
+            },
+            string: {
+                let parametersFromElement = try requiredParameters(from: $0)
+                _ = parametersFromElement.map { requiredParametersArr.insert($0) }
+                return $0
+            },
+            bool: { $0 },
+            other: { $0 }
+        )
+        return requiredParametersArr
     }
     
     // MARK: - Private
@@ -65,29 +56,17 @@ extension ParserImplementation: Parser {
     ///
     /// - Parameter string: String from which you need to get all the necessary parameters.
     /// - Returns: Array with the names of the required parameters.
-    private func requiredParameters(from string: String) -> [String] {
-        var elementWithParameter = string
-        var allParameters: [String] = []
-        var parameterName = ""
-        var isFindParameter = false
-        while !elementWithParameter.isEmpty {
-            let symbol = elementWithParameter.removeFirst()
-            if symbol == "$" && elementWithParameter.first == "{" {
-                isFindParameter = true
-                continue
-            } else if symbol.isLetter && isFindParameter {
-                if let nextSymbol = elementWithParameter.first {
-                    if nextSymbol.isLetter {
-                        parameterName += String(symbol)
+    private func requiredParameters(from string: String) throws -> [String] {
+        return try string
+                .split(separator: "$")
+                .filter { $0.first == "{" }
+                .reduce(into: [String]()) { result, stringWithParameter in
+                    let start = stringWithParameter.index(stringWithParameter.startIndex, offsetBy: 1)
+                    if let end = stringWithParameter.firstIndex(where: { $0 == "." || $0 == ":" || $0 == "}" }) {
+                        result.append(String(stringWithParameter[start..<end]))
                     } else {
-                        parameterName += String(symbol)
-                        allParameters.append(parameterName)
-                        parameterName = ""
-                        isFindParameter = false
+                        throw RuntimeError.syntaxError(string: String(stringWithParameter))
                     }
                 }
-            }
-        }
-        return allParameters
     }
 }

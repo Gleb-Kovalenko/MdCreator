@@ -64,9 +64,9 @@ final class MdCreatorApp<ParserType, TextTransformerType, ConverterType>
     /// - Throws: Runtime errors (ex. "files not found", when there are no .tcbundle files in directory), decoder errors (ex. "can't decode file") and so on
     func run() throws {
         
-        var requiredParameters: [String: String] = [:]
-        var modifiedFiles: [Parameters] = []
-        var parsedFiles: [Parameters] = []
+        var requiredParameters = [String: String]()
+        var modifiedFiles = [Parameters]()
+        var parsedFiles = [Parameters]()
         
         let bundleFiles = try bundleFiles(from: inDirectory)
         if bundleFiles.count == 0 {
@@ -79,7 +79,7 @@ final class MdCreatorApp<ParserType, TextTransformerType, ConverterType>
                     throw RuntimeError.parseError(file: bundleFile)
                 }
                 parsedFiles.append(parsedData)
-                requiredParameters.merge(parser.requiredParameters(from: parsedData)) { (current, _) in current }
+                _ = try parser.requiredParameters(from: parsedData).map { requiredParameters[$0] = "" }
             }
         }
         
@@ -102,7 +102,6 @@ final class MdCreatorApp<ParserType, TextTransformerType, ConverterType>
         
         try createMdFiles(files: convertedFiles)
         print("Success")
-        
     }
     
     // MARK: - Private

@@ -1,5 +1,5 @@
 <div align="center" style="margin-top: 0px;">
-<img src ="https://downloader.disk.yandex.ru/preview/3377798f86593ec8481b5a7a8347374542d7cc885c4b1493bccb2f352fe505d5/63065b2e/ghg_hJytLbWNKkIqKFSU81I6VTAyu1gHDtfxphB0r-bmTSUEf2hWWO-vIfrSLQJYBft_-fglzwRa7fBRRbY6-Q%3D%3D?uid=0&filename=y-logos.jpeg&disposition=inline&hash=&limit=0&content_type=image%2Fjpeg&owner_uid=0&tknv=v2&size=1200x550" />
+<img src = "logo.png" />
 </div>
 
 <h1 align="center" style="margin-top: 0px;">MdCreator</h1>
@@ -27,7 +27,7 @@
 #### .tcbundle file content example:
 
 
-```swift
+```json
 {
   "description" : "Core snippets for service layer and services in general. Here you can snippets for protocol classes declarations, DAO instances declarations, service instance declarations and etc.",
   "supported_languages" : [

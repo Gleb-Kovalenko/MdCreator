@@ -23,9 +23,7 @@ extension ConverterImplementation: Converter {
         isNeedToMerge: Bool,
         template: T.Type
     ) throws -> [String: String] {
-        
-        var partsOfConvertedText: [String: String] = [:]
-        
+        var partsOfConvertedText = [String: String]()
         for file in files {
             var convertedText = ""
             var fileName = ""
@@ -33,15 +31,15 @@ extension ConverterImplementation: Converter {
             while isContinueToSearch {
                for partTemplate in T.allCases {
                    if partTemplate.isFileName {
-                       fileName = findFileName(in: Array(arrayLiteral: file), match: partTemplate)
+                       fileName = findFileName(in: [file], match: partTemplate)
                    }
                    let result = try findText(
-                       in: Array(arrayLiteral: file),
+                       in: [file],
                        match: partTemplate,
                        to: convertedText,
                        with: parameters
                    )
-                   if result != "notFoundMatch" {
+                   if !result.isEmpty {
                        convertedText += result + "\n\n"
                    } else {
                        if !partTemplate.isFileHeader {
@@ -51,7 +49,7 @@ extension ConverterImplementation: Converter {
                    }
                }
            }
-            partsOfConvertedText[fileName] = convertedText
+           partsOfConvertedText[fileName] = convertedText
         }
         
         if isNeedToMerge {
@@ -113,20 +111,18 @@ extension ConverterImplementation: Converter {
     ) throws -> String {
         var result = ""
         for file in section {
-            for (elementKey, elementValue) in file {
-                if template.cleanPath == "\("/" * nestingLevel + elementKey)" {
-                    var elementValue = elementValue
-                    if let stringElement = elementValue as? String, template.needModifyParameter {
-                        elementValue = try modifyParameters(
-                            stringWithParameters: template.rawValue,
-                            stringToModify: stringElement,
-                            parameters: parameters
-                        )
-                    }
-                    result = template.text(with: elementValue)
-                    if !text.contains(result) || template.mayRepeat {
-                        return result
-                    }
+            for (elementKey, elementValue) in file where template.cleanPath == "\("/" * nestingLevel + elementKey)" {
+                var elementValue = elementValue
+                if let stringElement = elementValue as? String, template.needModifyParameter {
+                    elementValue = try modifyParameters(
+                        stringWithParameters: template.rawValue,
+                        stringToModify: stringElement,
+                        parameters: parameters
+                    )
+                }
+                result = template.text(with: elementValue)
+                if !text.contains(result) || template.mayRepeat {
+                    return result
                 }
             }
             for (elementKey, _) in file {
@@ -141,7 +137,7 @@ extension ConverterImplementation: Converter {
                 }
             }
         }
-        return "notFoundMatch"
+        return ""
     }
     
     /// Modify string, containing parameter
@@ -169,37 +165,26 @@ extension ConverterImplementation: Converter {
         stringToModify: String,
         parameters: [String: String]
     ) throws -> String {
-        var stringToFind = stringWithParameters
-        var resultString = ""
-        var nameOfParameter = ""
-        while !stringToFind.isEmpty {
-            let symbol = stringToFind.removeFirst()
-            if symbol == "$" {
-                while let character = stringToFind.first, character.isLetter {
-                    nameOfParameter += String(stringToFind.removeFirst())
-                }
-                var fullStringWithParameter = "${\(nameOfParameter)"
-                let splitedString = stringToModify.components(separatedBy: "${\(nameOfParameter)")
-                if splitedString.count == 1 && splitedString.contains("${") {
-                    throw RuntimeError.invalidParameterName(name: nameOfParameter)
-                }
-                for splitedElement in splitedString {
-                    if splitedElement.hasPrefix(":") {
-                        var splitedElement = splitedElement
-                        while let character = splitedElement.first, character != "}" {
-                            fullStringWithParameter += String(splitedElement.removeFirst())
-                        }
-                        fullStringWithParameter += "}"
-                        if let parameterValue = parameters[nameOfParameter] {
-                            resultString = stringToModify.replacingOccurrences(of: fullStringWithParameter, with: parameterValue)
-                        }
+        var resultString = stringToModify
+        _ = try stringWithParameters
+                    .split(separator: " ")
+                    .filter({ $0.first == "$" })
+                    .map {
+                        let parameterName = $0.dropFirst()
+                        _ = try resultString
+                                .components(separatedBy: "${\(parameterName)")
+                                .filter({ $0.first == ":" })
+                                .map {
+                                    let fullStringWithParameter = "${\(parameterName)\($0.split(separator: "}")[0])}"
+                                    if let parameterValue = parameters[String(parameterName)] {
+                                        resultString = resultString.replacingOccurrences(of: fullStringWithParameter, with: parameterValue)
+                                    } else {
+                                        throw RuntimeError.invalidParameterName(name: String(parameterName))
+                                    }
+                                }
                     }
-                }
-            }
-        }
-        return resultString == "" ? stringToModify : resultString
+        return resultString
     }
-    
     
     /// Find file name that accorded template
     ///
@@ -214,11 +199,9 @@ extension ConverterImplementation: Converter {
         nestingLevel: Int = 0
     ) -> String {
         for file in section {
-            for (elementKey, elementValue) in file {
-                if template.cleanPath == "\("/" * nestingLevel + elementKey)" {
-                    if let fileName = elementValue as? String {
-                        return fileName
-                    }
+            for (elementKey, elementValue) in file where template.cleanPath == "\("/" * nestingLevel + elementKey)" {
+                if let fileName = elementValue as? String {
+                    return fileName
                 }
             }
             for (elementKey, _) in file {
@@ -231,6 +214,6 @@ extension ConverterImplementation: Converter {
                 }
             }
         }
-        return "notFoundMatch"
+        return ""
     }
 }
