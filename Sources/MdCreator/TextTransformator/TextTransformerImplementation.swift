@@ -19,16 +19,14 @@ extension TextTransformerImplementation: TextTransformer {
     
     func modifyText(in fileData: Parameters, with parameters: [String: String]) throws -> Parameters {
         return try fileData.jsonMap(
-            arrayDict: {
+            [Parameters].self, {
                 try $0.reduce(into: [Parameters]()) { result, dictElement in
                     result.append(try modifyText(in: dictElement, with: parameters))
                 }
             },
-            string: {
+            String.self, {
                 try modify(string: $0, parameters: parameters)
-            },
-            bool: { $0 },
-            other: { $0 }
+            }
         )
     }
     
@@ -85,28 +83,28 @@ extension TextTransformerImplementation: TextTransformer {
     /// - Returns: a string with the parameter values to which the specified functions were applied, if they existed
     private func findAndApplyFunctions(in string: String, with parameters: [String: String]) throws -> String {
         var updatedString = string
-        _ = try parameters.map {
+        try parameters.forEach {
             let parameterValue = $0.value
-            _ = try updatedString
-                    .components(separatedBy: "${\(parameterValue)")
-                    .filter({ $0.hasPrefix(".") })
-                    .map { stringWithFunctions in
-                        var updatedParameterValue = parameterValue
-                        var fullStringWithParameter = "${\(parameterValue)"
-                        _ = try stringWithFunctions
-                                .split(separator: "}")[0]
-                                .split(separator: ".")
-                                .map { functionName in
-                                    let functionName = functionName.replacingOccurrences(of: "}", with: "")
-                                    fullStringWithParameter += ".\(functionName)"
-                                    if let parameterFunction = ParameterFunction(rawValue: String(functionName)) {
-                                        updatedParameterValue =  parameterFunction.perform(to: updatedParameterValue)
-                                    } else {
-                                        throw RuntimeError.unknownFunction(function: functionName)
-                                    }
-                                }
-                        updatedString = updatedString.replacingOccurrences(of: "\(fullStringWithParameter)}", with: "\(updatedParameterValue)")
-                    }
+            try updatedString
+                .components(separatedBy: "${\(parameterValue)")
+                .filter({ $0.hasPrefix(".") })
+                .forEach { stringWithFunctions in
+                    var updatedParameterValue = parameterValue
+                    var fullStringWithParameter = "${\(parameterValue)"
+                    try stringWithFunctions
+                        .split(separator: "}")[0]
+                        .split(separator: ".")
+                        .forEach { functionName in
+                            let functionName = functionName.replacingOccurrences(of: "}", with: "")
+                            fullStringWithParameter += ".\(functionName)"
+                            if let parameterFunction = ParameterFunction(rawValue: String(functionName)) {
+                                updatedParameterValue =  parameterFunction.perform(to: updatedParameterValue)
+                            } else {
+                                throw RuntimeError.unknownFunction(function: functionName)
+                            }
+                        }
+                    updatedString = updatedString.replacingOccurrences(of: "\(fullStringWithParameter)}", with: "\(updatedParameterValue)")
+                }
         }
         return updatedString
     }

@@ -1,5 +1,5 @@
 <div align="center" style="margin-top: 0px;">
-<img src = "logo.png" />
+<img src = "logo.png" width="400" height="400" />
 </div>
 
 <h1 align="center" style="margin-top: 0px;">MdCreator</h1>

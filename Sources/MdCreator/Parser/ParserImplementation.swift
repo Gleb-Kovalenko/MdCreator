@@ -19,21 +19,19 @@ extension ParserImplementation: Parser {
 
     func requiredParameters(from data: Parameters) throws -> Set<String> {
         var requiredParametersArr = Set<String>()
-        _ = try data.jsonMap(
-            arrayDict: {
-                _ = try $0.map {
+        try data.jsonMap(
+            [Parameters].self, {
+                try $0.forEach {
                     let elementParameters = try requiredParameters(from: $0)
                     requiredParametersArr = requiredParametersArr.union(elementParameters)
                 }
                 return $0
             },
-            string: {
+            String.self, {
                 let parametersFromElement = try requiredParameters(from: $0)
-                _ = parametersFromElement.map { requiredParametersArr.insert($0) }
+                parametersFromElement.forEach { requiredParametersArr.insert($0) }
                 return $0
-            },
-            bool: { $0 },
-            other: { $0 }
+            }
         )
         return requiredParametersArr
     }

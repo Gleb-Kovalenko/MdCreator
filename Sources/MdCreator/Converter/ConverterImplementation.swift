@@ -102,7 +102,7 @@ extension ConverterImplementation: Converter {
     ///   - nestingLevel: Indicates the current level of nesting
     /// - Throws: Invalid parameter name error
     /// - Returns: The template text with this element, if exists, otherwise "notFoundMatch" string
-    private func findText<T: MdFileTemplateProtocol>(
+    @discardableResult private func findText<T: MdFileTemplateProtocol>(
         in section: [Parameters],
         match template: T,
         to text: String,
@@ -111,8 +111,7 @@ extension ConverterImplementation: Converter {
     ) throws -> String {
         var result = ""
         for file in section {
-            for (elementKey, elementValue) in file where template.cleanPath == "\("/" * nestingLevel + elementKey)" {
-                var elementValue = elementValue
+            for (elementKey, var elementValue) in file where template.cleanPath == "\("/" * nestingLevel + elementKey)" {
                 if let stringElement = elementValue as? String, template.needModifyParameter {
                     elementValue = try modifyParameters(
                         stringWithParameters: template.rawValue,
@@ -166,23 +165,23 @@ extension ConverterImplementation: Converter {
         parameters: [String: String]
     ) throws -> String {
         var resultString = stringToModify
-        _ = try stringWithParameters
-                    .split(separator: " ")
-                    .filter({ $0.first == "$" })
-                    .map {
-                        let parameterName = $0.dropFirst()
-                        _ = try resultString
-                                .components(separatedBy: "${\(parameterName)")
-                                .filter({ $0.first == ":" })
-                                .map {
-                                    let fullStringWithParameter = "${\(parameterName)\($0.split(separator: "}")[0])}"
-                                    if let parameterValue = parameters[String(parameterName)] {
-                                        resultString = resultString.replacingOccurrences(of: fullStringWithParameter, with: parameterValue)
-                                    } else {
-                                        throw RuntimeError.invalidParameterName(name: String(parameterName))
-                                    }
+        try stringWithParameters
+                .split(separator: " ")
+                .filter { $0.first == "$" }
+                .forEach {
+                    let parameterName = $0.dropFirst()
+                    try resultString
+                            .components(separatedBy: "${\(parameterName)")
+                            .filter { $0.first == ":" }
+                            .forEach {
+                                let fullStringWithParameter = "${\(parameterName)\($0.split(separator: "}")[0])}"
+                                if let parameterValue = parameters[String(parameterName)] {
+                                    resultString = resultString.replacingOccurrences(of: fullStringWithParameter, with: parameterValue)
+                                } else {
+                                    throw RuntimeError.invalidParameterName(name: String(parameterName))
                                 }
-                    }
+                            }
+                }
         return resultString
     }
     
@@ -193,26 +192,28 @@ extension ConverterImplementation: Converter {
     ///   - template: A template that describes the path to the element
     ///   - nestingLevel: Indicates the current level of nesting
     /// - Returns: string that is the name of the file
-    private func findFileName<T: MdFileTemplateProtocol>(
+    @discardableResult private func findFileName<T: MdFileTemplateProtocol>(
         in section: [Parameters],
         match template: T,
         nestingLevel: Int = 0
     ) -> String {
         for file in section {
-            for (elementKey, elementValue) in file where template.cleanPath == "\("/" * nestingLevel + elementKey)" {
-                if let fileName = elementValue as? String {
-                    return fileName
-                }
+            let filename = file
+                            .filter { template.cleanPath == "\("/" * nestingLevel + $0.key)" }
+                            .compactMap { $0.value as? String }
+                            .first ?? ""
+            if !filename.isEmpty {
+                return filename
             }
-            for (elementKey, _) in file {
-                if let newSection = file[elementKey] as? [Parameters] {
-                    return findFileName(
-                        in: newSection,
+            file
+                .compactMap { $0.value as? [Parameters] }
+                .forEach {
+                    findFileName(
+                        in: $0,
                         match: template,
                         nestingLevel: nestingLevel + 1
                     )
                 }
-            }
         }
         return ""
     }

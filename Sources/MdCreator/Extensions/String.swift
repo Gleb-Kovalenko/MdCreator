@@ -34,8 +34,9 @@ extension String {
     func insertParametersValues(parameters: [String: String]) -> String {
         var newString = self
         for (parameterName, parameterValue) in parameters {
-            newString = newString.replacingOccurrences(of: "${\(parameterName).", with: "${\(parameterValue).")
-            newString = newString.replacingOccurrences(of: "${\(parameterName)}", with: parameterValue)
+            newString = newString
+                            .replacingOccurrences(of: "${\(parameterName).", with: "${\(parameterValue).")
+                            .replacingOccurrences(of: "${\(parameterName)}", with: parameterValue)
         }
         return newString
     }

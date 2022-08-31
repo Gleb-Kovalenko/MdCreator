@@ -79,7 +79,7 @@ final class MdCreatorApp<ParserType, TextTransformerType, ConverterType>
                     throw RuntimeError.parseError(file: bundleFile)
                 }
                 parsedFiles.append(parsedData)
-                _ = try parser.requiredParameters(from: parsedData).map { requiredParameters[$0] = "" }
+                try parser.requiredParameters(from: parsedData).forEach { requiredParameters[$0] = "" }
             }
         }
         
