@@ -17,18 +17,22 @@ struct MdCreator: ParsableCommand {
     static let configuration = CommandConfiguration(abstract: "Creating .md files from .tcbundle files", version: "0.0.1")
 
     @Option(name: .shortAndLong, help: "Directory of .tcbundle files")
-    var directory: String = FileManager.default.currentDirectoryPath
+    var inDirectory: String = FileManager.default.currentDirectoryPath
     
-    @Flag(name: .shortAndLong, help: "Merge all expanders in one .md file")
+    @Option(name: .shortAndLong, help: "Directory where the files will save")
+    var outDirectory: String = FileManager.default.currentDirectoryPath
+    
+    @Flag(name: .shortAndLong, help: "Merge all files in one .md file")
     var merge = false
 
     mutating func run() throws {
         let mdCreatorApp = MdCreatorApp(
-            directory: directory,
+            inDirectory: inDirectory,
+            outDirectory: outDirectory,
             isNeedToMerge: merge,
-            decoder: DecoderImplementation(),
             parser: ParserImplementation(),
-            textTransformer: TextTransformerImplementation()
+            textTransformer: TextTransformerImplementation(),
+            converter: ConverterImplementation()
         )
         try mdCreatorApp.run()
     }
